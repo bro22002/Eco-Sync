@@ -13,6 +13,7 @@ interface CanvasVisualizerProps {
     timestamp: string
   }>
   isLoading: boolean
+  previewScore?: number | null
 }
 
 // Dynamically import p5.js tree visualization to avoid SSR issues
@@ -35,9 +36,10 @@ interface TreeData {
   totalEmissions: number
 }
 
-export default function CanvasVisualizer({ logs, isLoading }: CanvasVisualizerProps) {
+export default function CanvasVisualizer({ logs, isLoading, previewScore }: CanvasVisualizerProps) {
   const [trees, setTrees] = useState<TreeData[]>([])
   const [overallCarbonScore, setOverallCarbonScore] = useState(0)
+  const [displayScore, setDisplayScore] = useState(0) // For preview animation
 
   useEffect(() => {
     // Calculate carbon scores based on transport type and emissions
@@ -113,6 +115,15 @@ export default function CanvasVisualizer({ logs, isLoading }: CanvasVisualizerPr
     setOverallCarbonScore(Math.min(overallScore, 100))
   }, [logs])
 
+  // Handle preview score animation
+  useEffect(() => {
+    if (previewScore !== undefined && previewScore !== null) {
+      setDisplayScore(previewScore)
+    } else {
+      setDisplayScore(overallCarbonScore)
+    }
+  }, [previewScore, overallCarbonScore])
+
   return (
     <div className="w-full h-full relative bg-gradient-to-b from-gray-800 to-gray-900 overflow-hidden">
       {isLoading && trees.length === 0 ? (
@@ -125,7 +136,11 @@ export default function CanvasVisualizer({ logs, isLoading }: CanvasVisualizerPr
           </div>
         </div>
       ) : (
-        <P5TreeWrapper trees={trees} overallCarbonScore={overallCarbonScore} />
+        <P5TreeWrapper 
+          trees={trees} 
+          overallCarbonScore={displayScore}
+          isPreview={previewScore !== undefined && previewScore !== null}
+        />
       )}
 
       {/* Carbon Score Legend */}
