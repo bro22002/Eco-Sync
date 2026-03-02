@@ -307,8 +307,21 @@ MIT
 
 For issues, questions, or suggestions, please open an issue on the repository.
 
+## Copilot & AI Assistance
+
+Throughout the development of Eco-Sync, GitHub Copilot (powered by Raptor mini) played a supportive role in the creative process. The assistant was used to:
+
+- Generate initial code templates for MCP tools, TypeScript interfaces, and utility functions.
+- Suggest implementation details, handle edge cases, and propose refactors.
+- Draft documentation sections, README content, and example usage snippets.
+- Provide debugging recommendations and help resolve TypeScript compilation errors.
+- Brainstorm architecture decisions and feature ideas through conversational interaction.
+- Speed up creation of helper scripts, test data, and configuration files.
+
+
+The AI acted as a pair programmer: its suggestions were reviewed, adapted, or rewritten to fit project needs. Copilot accelerated boilerplate creation and improved documentation clarity while I remained in control of design and correctness.
+
 ## References
 
-- [EPA Emission Factors](https://www.epa.gov/sites/production/files/2016-08/documents/emissions_factors_2014.pdf)
 - [Model Context Protocol (MCP)](https://modelcontextprotocol.io/)
 - [TypeScript Documentation](https://www.typescriptlang.org/docs/)
