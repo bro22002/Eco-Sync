@@ -70,6 +70,13 @@ The `.env` file controls all server configuration. Required variables:
 - **LAND_EMISSION_FACTOR**: g CO2e per kg per km for land transport (default: 0.0613)
 - **MCP_SERVER_PORT**: Server port (default: 3000)
 
+### EasyPost Integration (optional)
+You can connect Eco-Sync to a live freight/shipment API using EasyPost. When an `EASYPOST_API_KEY` is provided in your `.env` file, the server will dynamically fetch the latest shipments instead of loading the local `supply_chain_records.json` file.
+
+- **EASYPOST_API_KEY**: Your EasyPost API key (see https://www.easypost.com/docs/api for details)
+
+If the key is absent or the fetch fails, the server gracefully falls back to the JSON mock database.
+
 **⚠️ Security Note**: Never commit `.env` to version control. Use `.env.example` as a template and keep actual credentials/configuration in `.env` (added to `.gitignore`).
 
 ## Data Format

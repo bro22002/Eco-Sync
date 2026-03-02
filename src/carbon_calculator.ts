@@ -10,6 +10,7 @@ interface SupplyChainRecord {
   weight_kg: number;
   transport_type: "air" | "sea" | "land";
   timestamp: string;
+  distance_km?: number; // Now optional - will be calculated
 }
 
 interface CarbonFootprintResult {
@@ -22,6 +23,12 @@ interface CarbonFootprintResult {
   route: string;
 }
 
+// Distance cache to avoid repeated API calls
+const distanceCache: Record<string, number> = {};
+
+import { EasyPostService } from './easypost_service.js';
+import { calculateDistance } from './openroute_service.js';
+
 class SupplyChainDatabase {
   private records: SupplyChainRecord[] = [];
   private dbPath: string;
@@ -31,7 +38,43 @@ class SupplyChainDatabase {
     this.loadDatabase();
   }
 
+  private async fetchFromEasyPost(): Promise<void> {
+    const apiKey = process.env.EASYPOST_API_KEY;
+    if (!apiKey) {
+      throw new Error('EASYPOST_API_KEY not configured');
+    }
+
+    const client = new EasyPostService(apiKey);
+    let page = 1;
+    const all: SupplyChainRecord[] = [];
+
+    while (true) {
+      const shipments = await client.listShipments(50, page);
+      if (shipments.length === 0) break;
+      shipments.forEach((s, i) => {
+        all.push(client.mapToRecord(s, all.length + i));
+      });
+      page += 1;
+      if (page > 5) break; // safety: don't paginate indefinitely
+    }
+
+    this.records = all;
+    console.log(`Loaded ${this.records.length} supply chain records from EasyPost`);
+  }
+
   private loadDatabase(): void {
+    // if EASYPOST_API_KEY defined, attempt to fetch live shipments
+    if (process.env.EASYPOST_API_KEY) {
+      this.fetchFromEasyPost().catch((err) => {
+        console.error('EasyPost load failed, falling back to local file:', err);
+        this.loadFromFile();
+      });
+    } else {
+      this.loadFromFile();
+    }
+  }
+
+  private loadFromFile(): void {
     try {
       const data = fs.readFileSync(this.dbPath, "utf-8");
       this.records = JSON.parse(data);
@@ -71,11 +114,9 @@ class CarbonFootprintCalculator {
   }
 
   /**
-   * Calculate approximate distance between two locations in km
-   * Uses a simplified haversine formula approximation
+   * Fallback hardcoded distances if OpenRoute fails
    */
-  private calculateDistance(origin: string, destination: string): number {
-    // Simplified distance calculation based on common routes
+  private getFallbackDistance(origin: string, destination: string): number {
     const routeDistances: { [key: string]: number } = {
       "Shanghai, China-Los Angeles, USA": 12000,
       "Tokyo, Japan-New York, USA": 10800,
@@ -87,12 +128,36 @@ class CarbonFootprintCalculator {
     };
 
     const key = `${origin}-${destination}`;
-    return routeDistances[key] || 5000; // Default to 5000 km if not in lookup table
+    return routeDistances[key] || 5000;
   }
 
-  calculateEmissions(record: SupplyChainRecord): CarbonFootprintResult {
-    const distance = this.calculateDistance(record.origin, record.destination);
-    const emissionFactor = this.emissionFactors[record.transport_type];
+  async calculateEmissions(record: SupplyChainRecord): Promise<CarbonFootprintResult> {
+    let distance = record.distance_km;
+
+    // If distance not provided, try to fetch real distance from OpenRoute
+    if (!distance) {
+      try {
+        const cacheKey = `${record.origin}|${record.destination}`;
+        if (distanceCache[cacheKey]) {
+          distance = distanceCache[cacheKey];
+        } else {
+          const routeData = await calculateDistance({
+            origin: record.origin,
+            destination: record.destination,
+          });
+          distance = routeData.distance_km;
+          distanceCache[cacheKey] = distance;
+          console.log(`📍 OpenRoute: ${record.origin} → ${record.destination} = ${distance} km`);
+        }
+      } catch (error) {
+        console.warn(
+          `⚠️ OpenRoute failed for ${record.origin} → ${record.destination}, using fallback distance`
+        );
+        distance = this.getFallbackDistance(record.origin, record.destination);
+      }
+    }
+
+    const emissionFactor = this.emissionFactors[record.transport_type] || 0.1;
 
     // Calculate: weight (kg) × distance (km) × emission factor (g/kg/km) = emissions (g)
     // Convert to kg: divide by 1000
@@ -110,8 +175,8 @@ class CarbonFootprintCalculator {
     };
   }
 
-  calculateBatchEmissions(records: SupplyChainRecord[]): CarbonFootprintResult[] {
-    return records.map((record) => this.calculateEmissions(record));
+  async calculateBatchEmissions(records: SupplyChainRecord[]): Promise<CarbonFootprintResult[]> {
+    return Promise.all(records.map((record) => this.calculateEmissions(record)));
   }
 
   calculateAggregateEmissions(results: CarbonFootprintResult[]): {
@@ -139,3 +204,5 @@ class CarbonFootprintCalculator {
 
 // Export for MCP server integration
 export { SupplyChainDatabase, CarbonFootprintCalculator, SupplyChainRecord, CarbonFootprintResult };
+
+

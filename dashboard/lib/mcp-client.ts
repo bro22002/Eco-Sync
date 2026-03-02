@@ -17,9 +17,18 @@ interface MCPResponse {
 
 export async function callMCPTool(name: string, args: Record<string, unknown>) {
   try {
-    // Note: In production, you'd use a proper API gateway
-    // For now, we'll simulate MCP calls with local JSON data
-    return simulateMCPCall(name, args)
+    // In production we could forward to the MCP server; for now our dashboard
+    // exposes its own simple API route that wraps whatever database (mock or EasyPost)
+    // so we'll query those endpoints directly.
+    switch (name) {
+      case 'get_supply_chain_records':
+        return axios.get('/api/shipments').then((r) => r.data)
+      case 'calculate_carbon_footprint':
+        // this tool isn't currently exposed; simulate locally
+        return simulateCarbonEmissions(args)
+      default:
+        throw new Error(`Unknown tool: ${name}`)
+    }
   } catch (error) {
     console.error(`Error calling MCP tool ${name}:`, error)
     throw error
@@ -134,16 +143,6 @@ function simulateCarbonEmissions(args: Record<string, unknown>) {
     land: 0.0613,
   }
 
-  const distances: Record<string, number> = {
-    'Shanghai, China-Los Angeles, USA': 12000,
-    'Tokyo, Japan-New York, USA': 10800,
-    'Berlin, Germany-Paris, France': 880,
-    'Singapore, Singapore-Dubai, UAE': 3600,
-    'Mumbai, India-London, UK': 7200,
-    'Mexico City, Mexico-Toronto, Canada': 2100,
-    'Rotterdam, Netherlands-Hamburg, Germany': 450,
-  }
-
   const records = [
     {
       id: 'SC001',
@@ -151,6 +150,7 @@ function simulateCarbonEmissions(args: Record<string, unknown>) {
       weight_kg: 15000,
       origin: 'Shanghai, China',
       destination: 'Los Angeles, USA',
+      distance_km: 12000,
     },
     {
       id: 'SC002',
@@ -158,6 +158,7 @@ function simulateCarbonEmissions(args: Record<string, unknown>) {
       weight_kg: 8500,
       origin: 'Tokyo, Japan',
       destination: 'New York, USA',
+      distance_km: 10800,
     },
     {
       id: 'SC003',
@@ -165,6 +166,7 @@ function simulateCarbonEmissions(args: Record<string, unknown>) {
       weight_kg: 2200,
       origin: 'Berlin, Germany',
       destination: 'Paris, France',
+      distance_km: 880,
     },
     {
       id: 'SC004',
@@ -172,6 +174,7 @@ function simulateCarbonEmissions(args: Record<string, unknown>) {
       weight_kg: 12000,
       origin: 'Singapore, Singapore',
       destination: 'Dubai, UAE',
+      distance_km: 3600,
     },
     {
       id: 'SC005',
@@ -179,6 +182,7 @@ function simulateCarbonEmissions(args: Record<string, unknown>) {
       weight_kg: 5600,
       origin: 'Mumbai, India',
       destination: 'London, UK',
+      distance_km: 7200,
     },
     {
       id: 'SC006',
@@ -186,6 +190,7 @@ function simulateCarbonEmissions(args: Record<string, unknown>) {
       weight_kg: 3400,
       origin: 'Mexico City, Mexico',
       destination: 'Toronto, Canada',
+      distance_km: 2100,
     },
     {
       id: 'SC007',
@@ -209,8 +214,7 @@ function simulateCarbonEmissions(args: Record<string, unknown>) {
 
   const results = filtered.map((record) => {
     const factor = emissionFactors[record.transport_type]
-    const key = `${record.origin}-${record.destination}`
-    const distance = distances[key] || 5000
+    const distance = record.distance_km || 5000
     const emissions = (record.weight_kg * distance * factor) / 1000
 
     return {
@@ -251,15 +255,17 @@ function simulateCarbonEmissions(args: Record<string, unknown>) {
 }
 
 export async function fetchSupplyChainData() {
-  return simulateSupplyChainRecords({})
+  // call the API route
+  return callMCPTool('get_supply_chain_records', {})
 }
 
 export async function fetchCarbonEmissions() {
+  // fall back to simulation for now
   return simulateCarbonEmissions({ include_aggregates: true })
 }
 
 export async function fetchSupplyChainDataByTransport(type: string) {
-  return simulateSupplyChainRecords({ transport_type: type })
+  return callMCPTool('get_supply_chain_records', { transport_type: type })
 }
 
 export async function fetchCarbonEmissionsByTransport(type: string) {

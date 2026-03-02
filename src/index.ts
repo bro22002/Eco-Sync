@@ -112,7 +112,7 @@ async function calculateCarbonFootprint(input: {
     records = db.getAllRecords();
   }
 
-  const results = calculator.calculateBatchEmissions(records);
+  const results = await calculator.calculateBatchEmissions(records);
 
   const response: unknown = {
     results,

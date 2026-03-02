@@ -118,6 +118,13 @@ The project includes 7 sample supply chain records covering:
 
 ## 🔧 Customization
 
+### 🛰️ Live Shipping API
+If you supply an `EASYPOST_API_KEY` in your `.env`, the server will automatically
+fetch live shipment records from EasyPost instead of using the static JSON file.
+This makes it trivial to replace the mock database with real shipping data for
+production or testing.
+
+
 ### Add More Records
 Edit `data/supply_chain_records.json` and add new records with:
 - `id` (unique identifier)

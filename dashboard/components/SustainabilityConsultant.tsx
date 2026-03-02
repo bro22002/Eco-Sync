@@ -209,7 +209,7 @@ export default function SustainabilityConsultant({
               className={`flex ${message.role === 'user' ? 'justify-end' : 'justify-start'}`}
             >
               <div
-                className={`max-w-xs rounded-lg p-3 ${
+                className={`max-w-full sm:max-w-xs rounded-lg p-3 ${
                   message.role === 'user'
                     ? 'bg-eco-600/40 text-eco-100 border border-eco-600'
                     : 'bg-gray-700/40 text-gray-200 border border-gray-600/30'

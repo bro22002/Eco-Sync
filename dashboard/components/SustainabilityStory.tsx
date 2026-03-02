@@ -131,16 +131,21 @@ export default function SustainabilityStory({ route, isLoading }: Sustainability
               variants={containerVariants}
               initial="hidden"
               animate="visible"
-              className="bg-gradient-to-r from-gray-800 to-gray-900 rounded-lg p-6 border border-eco-600/30"
+              className="bg-white/[0.02] backdrop-blur-md rounded-2xl p-7 border border-white/10 shadow-xl relative overflow-hidden"
             >
-              <motion.div variants={itemVariants} className="flex items-start justify-between mb-4">
+              {/* Subtle background glow */}
+              <div className="absolute top-0 right-0 -mt-10 -mr-10 w-40 h-40 bg-eco-500/10 rounded-full blur-3xl pointer-events-none" />
+              
+              <motion.div variants={itemVariants} className="flex items-start justify-between mb-6 relative z-10">
                 <div>
-                  <h2 className="text-2xl font-bold text-eco-400 flex items-center gap-2">
-                    <span className="text-3xl">{story.icon}</span>
+                  <h2 className="text-2xl font-black bg-clip-text text-transparent bg-gradient-to-r from-eco-300 to-eco-500 drop-shadow-sm flex items-center gap-3">
+                    <span className="text-3xl filter drop-shadow-md">{story.icon}</span>
                     {story.title}
                   </h2>
-                  <p className="text-gray-400 text-sm mt-2">
-                    Route: {selectedRoute.origin} → {selectedRoute.destination}
+                  <p className="text-gray-400 text-sm mt-3 tracking-wide font-medium flex items-center gap-2">
+                    <span className="text-white/80">{selectedRoute.origin}</span>
+                    <span className="text-eco-500/50">→</span>
+                    <span className="text-white/80">{selectedRoute.destination}</span>
                   </p>
                 </div>
               </motion.div>
@@ -150,23 +155,23 @@ export default function SustainabilityStory({ route, isLoading }: Sustainability
                 variants={containerVariants}
                 initial="hidden"
                 animate="visible"
-                className="grid grid-cols-2 gap-4 mt-4"
+                className="grid grid-cols-2 gap-4 mt-6 relative z-10"
               >
-                <motion.div variants={itemVariants} className="bg-black/40 rounded p-3">
-                  <p className="text-gray-400 text-xs">Weight</p>
-                  <p className="text-eco-400 font-semibold text-lg">{selectedRoute.weight_kg.toLocaleString()} kg</p>
+                <motion.div variants={itemVariants} className="bg-black/20 border border-white/5 rounded-xl p-4 hover:bg-white/[0.05] transition-colors">
+                  <p className="text-gray-500 text-xs font-bold tracking-wider uppercase mb-1">Weight</p>
+                  <p className="text-white font-semibold text-xl">{selectedRoute.weight_kg.toLocaleString()} <span className="text-sm font-normal text-gray-500">kg</span></p>
                 </motion.div>
-                <motion.div variants={itemVariants} className="bg-black/40 rounded p-3">
-                  <p className="text-gray-400 text-xs">Distance</p>
-                  <p className="text-eco-400 font-semibold text-lg">{selectedRoute.distance.toLocaleString()} km</p>
+                <motion.div variants={itemVariants} className="bg-black/20 border border-white/5 rounded-xl p-4 hover:bg-white/[0.05] transition-colors">
+                  <p className="text-gray-500 text-xs font-bold tracking-wider uppercase mb-1">Distance</p>
+                  <p className="text-white font-semibold text-xl">{selectedRoute.distance.toLocaleString()} <span className="text-sm font-normal text-gray-500">km</span></p>
                 </motion.div>
-                <motion.div variants={itemVariants} className="bg-black/40 rounded p-3">
-                  <p className="text-gray-400 text-xs">CO₂e Emissions</p>
-                  <p className="text-eco-400 font-semibold text-lg">{selectedRoute.totalEmissions.toFixed(0)} kg</p>
+                <motion.div variants={itemVariants} className="bg-black/20 border border-white/5 rounded-xl p-4 hover:shadow-[0_0_15px_rgba(76,175,80,0.1)] transition-shadow">
+                  <p className="text-eco-500/80 text-xs font-bold tracking-wider uppercase mb-1">CO₂e Emissions</p>
+                  <p className="text-eco-400 font-bold text-xl drop-shadow-[0_0_8px_rgba(76,175,80,0.5)]">{selectedRoute.totalEmissions.toFixed(0)} <span className="text-sm font-normal text-eco-500/70">kg</span></p>
                 </motion.div>
-                <motion.div variants={itemVariants} className="bg-black/40 rounded p-3">
-                  <p className="text-gray-400 text-xs">Transport Type</p>
-                  <p className="text-eco-400 font-semibold text-lg capitalize">{selectedRoute.transport_type}</p>
+                <motion.div variants={itemVariants} className="bg-black/20 border border-white/5 rounded-xl p-4 hover:bg-white/[0.05] transition-colors">
+                  <p className="text-gray-500 text-xs font-bold tracking-wider uppercase mb-1">Transport</p>
+                  <p className="text-white font-semibold text-xl capitalize">{selectedRoute.transport_type}</p>
                 </motion.div>
               </motion.div>
             </motion.div>
@@ -176,9 +181,9 @@ export default function SustainabilityStory({ route, isLoading }: Sustainability
               variants={containerVariants}
               initial="hidden"
               animate="visible"
-              className="bg-gray-800/50 rounded-lg p-6 border border-eco-500/20"
+              className="bg-white/[0.02] rounded-2xl p-7 border border-white/5 shadow-lg"
             >
-              <motion.p variants={itemVariants} className="text-gray-300 leading-relaxed">
+              <motion.p variants={itemVariants} className="text-gray-300 leading-relaxed text-[15px]">
                 {story.narrative}
               </motion.p>
             </motion.div>
@@ -188,12 +193,13 @@ export default function SustainabilityStory({ route, isLoading }: Sustainability
               variants={containerVariants}
               initial="hidden"
               animate="visible"
-              className="bg-eco-950/40 rounded-lg p-6 border-2 border-eco-500/40"
+              className="bg-gradient-to-br from-eco-500/10 to-transparent rounded-2xl p-7 border border-eco-500/30 relative overflow-hidden"
             >
-              <motion.h3 variants={itemVariants} className="text-eco-400 font-semibold mb-3 flex items-center gap-2">
-                <span>💡</span> Sustainability Recommendation
+              <div className="absolute top-0 left-0 w-1 h-full bg-eco-500" />
+              <motion.h3 variants={itemVariants} className="text-eco-400 font-bold mb-3 flex items-center gap-2 text-lg">
+                <span className="text-xl">💡</span> Sustainability Recommendation
               </motion.h3>
-              <motion.p variants={itemVariants} className="text-eco-300">
+              <motion.p variants={itemVariants} className="text-emerald-100/80 leading-relaxed text-[15px]">
                 {story.recommendation}
               </motion.p>
             </motion.div>
@@ -203,31 +209,39 @@ export default function SustainabilityStory({ route, isLoading }: Sustainability
               variants={containerVariants}
               initial="hidden"
               animate="visible"
-              className="bg-gray-800/50 rounded-lg p-6 border border-eco-600/30"
+              className="bg-white/[0.02] rounded-2xl p-7 border border-white/5 shadow-lg"
             >
-              <motion.h3 variants={itemVariants} className="text-eco-400 font-semibold mb-4">
-                Carbon Impact Level
-              </motion.h3>
+              <motion.div variants={itemVariants} className="flex justify-between items-end mb-5">
+                <h3 className="text-white font-bold text-lg">
+                  Carbon Impact Level
+                </h3>
+                <span className="text-eco-400 font-semibold text-sm bg-eco-500/10 px-3 py-1.5 rounded-full border border-eco-500/20">
+                  {((selectedRoute.totalEmissions / selectedRoute.weight_kg / selectedRoute.distance) * 1000000).toFixed(2)} g CO₂e/kg/km
+                </span>
+              </motion.div>
+              
               <motion.div variants={itemVariants} className="space-y-3">
-                <div className="flex items-center justify-between">
-                  <span className="text-gray-400">Emissions Intensity</span>
-                  <span className="text-eco-400 font-semibold">
-                    {(selectedRoute.totalEmissions / selectedRoute.weight_kg / selectedRoute.distance * 1000000).toFixed(2)} g CO₂e/kg/km
-                  </span>
-                </div>
                 <motion.div
-                  className="w-full h-2 bg-gray-700 rounded-full overflow-hidden"
-                  initial={{ backgroundColor: 'rgb(55, 65, 81)' }}
-                  animate={{
-                    backgroundColor: selectedRoute.totalEmissions > 1000 ? 'rgb(139, 69, 19)' : selectedRoute.totalEmissions > 500 ? 'rgb(245, 158, 11)' : 'rgb(34, 197, 94)',
-                  }}
+                  className="w-full h-3 bg-black/40 rounded-full overflow-hidden border border-white/5 shadow-inner"
+                  initial={{ backgroundColor: 'rgb(0, 0, 0, 0.4)' }}
                 >
                   <motion.div
-                    className="h-full bg-gradient-to-r from-eco-500 to-eco-400"
-                    initial={{ width: '0%' }}
-                    animate={{ width: `${Math.min((selectedRoute.totalEmissions / 2000) * 100, 100)}%` }}
-                    transition={{ duration: 0.8, ease: 'easeOut' }}
-                  />
+                    className="h-full rounded-full relative"
+                    initial={{ width: '0%', backgroundColor: 'rgb(34, 197, 94)' }}
+                    animate={{ 
+                      width: `${Math.min((selectedRoute.totalEmissions / 2000) * 100, 100)}%`,
+                      backgroundColor: selectedRoute.totalEmissions > 1000 ? 'rgb(239, 68, 68)' : selectedRoute.totalEmissions > 500 ? 'rgb(245, 158, 11)' : 'rgb(34, 197, 94)',
+                      boxShadow: selectedRoute.totalEmissions > 1000 
+                        ? '0 0 15px rgba(239,68,68,0.6)' 
+                        : selectedRoute.totalEmissions > 500 
+                          ? '0 0 15px rgba(245,158,11,0.6)' 
+                          : '0 0 15px rgba(34,197,94,0.6)'
+                    }}
+                    transition={{ duration: 1, ease: 'easeOut', delay: 0.2 }}
+                  >
+                    {/* Inner highlight for 3D effect */}
+                    <div className="absolute top-0 left-0 right-0 h-1/3 bg-white/20 rounded-t-full" />
+                  </motion.div>
                 </motion.div>
               </motion.div>
             </motion.div>

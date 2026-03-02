@@ -58,7 +58,7 @@ export default function ChatInterface({ onSendMessage, isLoading }: ChatInterfac
   }
 
   return (
-    <div className="border-t border-gray-700 bg-gray-900/50 p-4 space-y-3">
+    <div className="border-t border-gray-700 bg-gray-900/50 p-3 sm:p-4 space-y-3">
       {/* Suggestions Dropdown */}
       {showSuggestions && (
         <motion.div
